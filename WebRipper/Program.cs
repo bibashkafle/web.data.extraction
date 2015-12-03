@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -8,63 +9,92 @@ namespace WebRipper
 {
     class Program
     {
-        static void Main(string[] args)
-        {
+        static void Main(string[] args){
             GetDoctors("http://nepalhealthpages.com/doctors/urology");
+            GetDoctors("http://nepalhealthpages.com/doctors/urology/20");
+            GetDoctors("http://nepalhealthpages.com/doctors/urology/40");
             Console.ReadLine();
         }
 
         static void GetDoctors(string url)
         {
-            var nodes = GetNode(url, "//div", "class", "hospital-listing doctor-listing specialty-listing");
-
+            Console.WriteLine("\n_________________________________________________________________________\n");
+            var nodes = GetNode(url, "//div[@class='hospital-listing doctor-listing specialty-listing']");
+            var sb = new StringBuilder();
+            sb.AppendLine("Hospital Name, Hospital Contact, Doctor Name, Degree, Department, Speciality");
             foreach (HtmlNode pNode in nodes.Descendants("li"))
             {
                 foreach (HtmlNode cNode in pNode.Descendants("a"))
                 {
                     if (cNode.Attributes.Contains("href")){
-                        //Console.WriteLine(cNode.Attributes["href"].Value);
-                        var profile = GetNode(cNode.Attributes["href"].Value, "//div", "id", "doctor-profile-wrapper");
-                        foreach (HtmlNode list in profile.Descendants("div"))
+                        Console.WriteLine(cNode.Attributes["href"].Value);
+                        var profile = GetNode(cNode.Attributes["href"].Value, "//div[@id='doctor-profile-wrapper']");
+
+                        foreach (HtmlNode list in profile.Descendants())
                         {
-                            if (list.Attributes.Count > 0 && list.ChildNodes["div"].Attributes.Contains("class"))
-                            {
-                                if (list.ChildNodes["div"].Attributes["class"].Value == "doctor-profile-field")
-                                {
-                                    var docName = list.InnerText;
-                                }
-                            }                           
+                            var hospitalName = list.SelectNodes("//div[@class='doctor-hospital-name']")[0].InnerText.Trim();
+                            var hospitalContact = list.SelectNodes("//div[@class='doctor-hospital-details']")[0].InnerText.Trim().Replace(",", " ").Replace(" Tel:", ""); 
+                            var doctorProfile = list.SelectNodes("//div[@class='doctor-profile-field']");
+                            var doctorName = "";
+                            var degree = "";
+                             var department = "";
+                            var speciality = "";
+
+                            if(doctorProfile.Count>0)
+                                doctorName = doctorProfile[0].InnerText.Trim().Replace("Name : ", "");
+
+                            if(doctorProfile.Count>1)
+                                degree = doctorProfile[1].InnerText.Trim().Replace("Academic Degree  : ", "");
+
+                            if(doctorProfile.Count>2)
+                                department = doctorProfile[2].InnerText.Trim().Replace("Department : ", "").Replace("\t","");
+
+                             if(doctorProfile.Count>3)
+                                 speciality = doctorProfile[3].InnerText.Trim().Replace("Speciality  : ","").Replace("\t","");
+
+                             sb.AppendLine(hospitalName + " , " + hospitalContact + " , " + doctorName + " , " + degree + " , " + department + " , " + speciality);
+                             //Console.Write(hospitalName + " , " + hospitalContact + " , " + doctorName + " , " + degree + " , " + department + " , " + speciality);
+                        
+                            //File.WriteAllText(@"D:\Bibash\Project\web.data.extraction\profile.csv",sb.ToString());
+                             WriteFile(sb.ToString());
+                            break;
                         }
                     }
                 }
             }
         }
 
-        static string Extract(string url){
+        static HtmlNode GetNode(string url, string xpath)
+        {
+            var nodeList = GetNodeList(url, xpath);
+            if (nodeList.Count > 0)
+                return nodeList[0];
+
+            return null;
+        }
+
+        static HtmlNodeCollection GetNodeList(string url, string xpath)
+        {
+            HtmlDocument htmlDoc = new HtmlDocument();
+            var str = Extract(url);
+            htmlDoc.LoadHtml(str);
+            return htmlDoc.DocumentNode.SelectNodes(xpath);
+        }
+
+        static string Extract(string url)
+        {
             return (new WebClient().DownloadString(url));
         }
 
-        static HtmlNode GetNode(string url, string xpath, string attr="", string value="")
+        static void WriteFile(string value)
         {
-            HtmlNode returnNode = null; ; 
-            var str = Extract(url);
-            HtmlDocument htmlDoc = new HtmlDocument();
-            htmlDoc.LoadHtml(str);
-
-            foreach (HtmlNode node in htmlDoc.DocumentNode.SelectNodes(xpath)) //"//div"
-            {
-                if (!string.IsNullOrWhiteSpace(attr)){
-                    if (node.Attributes.Contains(attr)){
-                        if (node.Attributes[attr].Value == value){
-                            returnNode = node;
-                        }
-                    }
-                }
-                else{
-                    returnNode = node;
-                }
+            var path = @"D:\Bibash\Project\web.data.extraction\profile.csv";
+            if (!File.Exists(path)){
+                File.WriteAllText(path, value);
             }
-            return returnNode;
+            else{
+                File.AppendAllText(path, value);
+            }
         }
     }
 }

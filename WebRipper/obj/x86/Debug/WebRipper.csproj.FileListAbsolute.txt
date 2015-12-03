@@ -6,3 +6,10 @@ c:\users\biabsh\documents\visual studio 2010\Projects\WebRipper\WebRipper\bin\De
 c:\users\biabsh\documents\visual studio 2010\Projects\WebRipper\WebRipper\obj\x86\Debug\WebRipper.csprojResolveAssemblyReference.cache
 c:\users\biabsh\documents\visual studio 2010\Projects\WebRipper\WebRipper\obj\x86\Debug\WebRipper.exe
 c:\users\biabsh\documents\visual studio 2010\Projects\WebRipper\WebRipper\obj\x86\Debug\WebRipper.pdb
+D:\Bibash\Project\web.data.extraction\WebRipper\obj\x86\Debug\WebRipper.exe
+D:\Bibash\Project\web.data.extraction\WebRipper\obj\x86\Debug\WebRipper.pdb
+D:\Bibash\Project\web.data.extraction\WebRipper\bin\Debug\WebRipper.exe
+D:\Bibash\Project\web.data.extraction\WebRipper\bin\Debug\WebRipper.pdb
+D:\Bibash\Project\web.data.extraction\WebRipper\bin\Debug\HtmlAgilityPack.pdb
+D:\Bibash\Project\web.data.extraction\WebRipper\bin\Debug\HtmlAgilityPack.xml
+D:\Bibash\Project\web.data.extraction\WebRipper\obj\x86\Debug\WebRipper.csprojResolveAssemblyReference.cache
